@@ -1,0 +1,243 @@
+<Window x:Class="PomodoroApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Study Sanctuary"
+        Height="640" Width="460"
+        MinHeight="560" MinWidth="400"
+        Background="#1E1E2E"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanMinimize"
+        FontFamily="Segoe UI">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="30,24,30,28">
+
+            <!-- ── App header ─────────────────────────────────────────── -->
+
+            <TextBlock Text="Study Sanctuary"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="#CDD6F4"
+                       HorizontalAlignment="Center"/>
+
+            <TextBlock Text="Pomodoro Focus Timer"
+                       FontSize="12"
+                       Foreground="#585B70"
+                       HorizontalAlignment="Center"
+                       Margin="0,2,0,16"/>
+
+            <!-- ── Mode selector ─────────────────────────────────────── -->
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0" Content="⏱  Work · 25 min"
+                        Command="{Binding SetWorkModeCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource RoundButton}">
+                            <Setter Property="Background" Value="#313244"/>
+                            <Setter Property="Foreground" Value="#585B70"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWorkMode}" Value="True">
+                                    <Setter Property="Background" Value="#89B4FA"/>
+                                    <Setter Property="Foreground" Value="#1E1E2E"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <Button Grid.Column="2" Content="☕  Rest · 5 min"
+                        Command="{Binding SetRestModeCommand}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource RoundButton}">
+                            <Setter Property="Background" Value="#313244"/>
+                            <Setter Property="Foreground" Value="#585B70"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsRestMode}" Value="True">
+                                    <Setter Property="Background" Value="#A6E3A1"/>
+                                    <Setter Property="Foreground" Value="#1E1E2E"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </Grid>
+
+            <!-- ── Timer display card ─────────────────────────────────── -->
+
+            <Border Background="#181825"
+                    CornerRadius="16"
+                    Padding="20,28"
+                    Margin="0,0,0,20">
+                <StackPanel>
+
+                    <!-- Large MM:SS countdown — colour follows mode -->
+                    <TextBlock Text="{Binding TimeDisplay}"
+                               FontSize="84"
+                               FontWeight="Bold"
+                               FontFamily="Consolas"
+                               Foreground="{Binding TimerForeground}"
+                               HorizontalAlignment="Center"/>
+
+                    <!-- Status line -->
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="13"
+                               Foreground="#A6ADC8"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"
+                               Margin="0,10,0,0"/>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ── Control buttons ───────────────────────────────────── -->
+
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="▶  Start"
+                        Command="{Binding StartCommand}"
+                        Background="#A6E3A1"
+                        Style="{StaticResource RoundButton}"/>
+
+                <Button Grid.Column="2"
+                        Content="⏸  Pause"
+                        Command="{Binding PauseCommand}"
+                        Background="#FAB387"
+                        Style="{StaticResource RoundButton}"/>
+
+                <Button Grid.Column="4"
+                        Content="↺  Reset"
+                        Command="{Binding ResetCommand}"
+                        Background="#F38BA8"
+                        Style="{StaticResource RoundButton}"/>
+            </Grid>
+
+            <!-- ── Study topic ───────────────────────────────────────── -->
+
+            <TextBlock Text="STUDY TOPIC" Style="{StaticResource LabelText}"/>
+
+            <Border Style="{StaticResource InputBorder}">
+                <Grid>
+                    <!-- Placeholder — visible only when Topic is empty -->
+                    <TextBlock Text="What are you studying today?"
+                               Foreground="#585B70"
+                               FontSize="13"
+                               Margin="10,8,10,8"
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Topic}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBox Text="{Binding Topic, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputBox}"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Mood selector ─────────────────────────────────────── -->
+
+            <TextBlock Text="CURRENT MOOD" Style="{StaticResource LabelText}"/>
+
+            <Border Style="{StaticResource InputBorder}">
+                <ComboBox ItemsSource="{Binding Moods}"
+                          SelectedItem="{Binding SelectedMood}"
+                          Padding="10,8"
+                          FontSize="13"
+                          Foreground="#CDD6F4"
+                          BorderThickness="0">
+                    <ComboBox.Background>
+                        <SolidColorBrush Color="#313244"/>
+                    </ComboBox.Background>
+                    <!-- Override popup background for dark theme -->
+                    <ComboBox.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}"
+                                         Color="#313244"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                                         Color="#45475A"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}"
+                                         Color="#CDD6F4"/>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}"
+                                         Color="#CDD6F4"/>
+                    </ComboBox.Resources>
+                </ComboBox>
+            </Border>
+
+            <!-- ── Notes ─────────────────────────────────────────────── -->
+
+            <TextBlock Text="SESSION NOTES" Style="{StaticResource LabelText}"/>
+
+            <Border Style="{StaticResource InputBorder}">
+                <Grid>
+                    <!-- Placeholder — visible only when Notes is empty -->
+                    <TextBlock Text="Jot down thoughts, questions, or goals…"
+                               Foreground="#585B70"
+                               FontSize="13"
+                               Margin="10,8,10,8"
+                               IsHitTestVisible="False"
+                               VerticalAlignment="Top">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Notes}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource InputBox}"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Height="100"
+                             VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto"/>
+                </Grid>
+            </Border>
+
+            <!-- ── Dashboard button ──────────────────────────────────── -->
+
+            <Button Content="📊  View Dashboard"
+                    Command="{Binding OpenDashboardCommand}"
+                    Style="{StaticResource RoundButton}"
+                    Background="#313244"
+                    Foreground="#CDD6F4"
+                    Margin="0,0,0,12"/>
+
+            <!-- ── Footer hint ───────────────────────────────────────── -->
+
+            <TextBlock Text="Session is saved automatically when the timer completes."
+                       FontSize="11"
+                       Foreground="#45475A"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center"/>
+
+        </StackPanel>
+    </ScrollViewer>
+
+</Window>

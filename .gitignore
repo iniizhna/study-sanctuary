@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+
+# SQLite database (contains personal study data — keep local)
+*.db
+*.db-shm
+*.db-wal
+
+# User-specific Visual Studio files
+*.user
+*.suo
+.vs/
+*.rsuser
+
+# Rider
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
