@@ -9,6 +9,10 @@
         ResizeMode="CanMinimize"
         FontFamily="Segoe UI">
 
+    <Window.InputBindings>
+        <KeyBinding Key="D" Modifiers="Ctrl" Command="{Binding OpenDashboardCommand}"/>
+    </Window.InputBindings>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
         <StackPanel Margin="30,24,30,28">
