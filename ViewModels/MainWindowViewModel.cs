@@ -55,6 +55,7 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     private string _notes         = string.Empty;
     private bool   _isRunning;
     private bool   _isWorkMode    = true;
+    private bool   _isFullScreen;
 
     // ------------------------------------------------------------------
     // Bound properties
@@ -106,9 +107,9 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         private set
         {
             if (!Set(ref _isWorkMode, value)) return;
-            // Notify computed properties that depend on the mode.
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsRestMode)));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(TimerForeground)));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ModeLabel)));
         }
     }
 
@@ -118,6 +119,22 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public SolidColorBrush TimerForeground => _isWorkMode
         ? new SolidColorBrush(Color.FromRgb(0x89, 0xB4, 0xFA))
         : new SolidColorBrush(Color.FromRgb(0xA6, 0xE3, 0xA1));
+
+    /// <summary>Label shown in the full-screen overlay.</summary>
+    public string ModeLabel => _isWorkMode ? "⏱  WORK SESSION" : "☕  REST BREAK";
+
+    public bool IsFullScreen
+    {
+        get => _isFullScreen;
+        private set
+        {
+            if (!Set(ref _isFullScreen, value)) return;
+            FullScreenToggled?.Invoke(value);
+        }
+    }
+
+    /// <summary>Fires when full-screen state changes so code-behind can update WindowStyle/State.</summary>
+    public event Action<bool>? FullScreenToggled;
 
     /// <summary>Mood options shown in the ComboBox.</summary>
     public IReadOnlyList<string> Moods { get; } =
@@ -130,9 +147,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
     public ICommand StartCommand         { get; }
     public ICommand PauseCommand         { get; }
     public ICommand ResetCommand         { get; }
-    public ICommand SetWorkModeCommand   { get; }
-    public ICommand SetRestModeCommand   { get; }
-    public ICommand OpenDashboardCommand { get; }
+    public ICommand SetWorkModeCommand      { get; }
+    public ICommand SetRestModeCommand      { get; }
+    public ICommand ToggleFullScreenCommand { get; }
+    public ICommand ExitFullScreenCommand   { get; }
+    public ICommand OpenDashboardCommand    { get; }
 
     // ------------------------------------------------------------------
     // Constructor
@@ -149,9 +168,11 @@ public sealed class MainWindowViewModel : INotifyPropertyChanged
         StartCommand         = new RelayCommand(Start, () => !IsRunning);
         PauseCommand         = new RelayCommand(Pause, () => IsRunning);
         ResetCommand         = new RelayCommand(Reset);
-        SetWorkModeCommand   = new RelayCommand(SetWorkMode);
-        SetRestModeCommand   = new RelayCommand(SetRestMode);
-        OpenDashboardCommand = new RelayCommand(OpenDashboard);
+        SetWorkModeCommand      = new RelayCommand(SetWorkMode);
+        SetRestModeCommand      = new RelayCommand(SetRestMode);
+        ToggleFullScreenCommand = new RelayCommand(() => IsFullScreen = !IsFullScreen);
+        ExitFullScreenCommand   = new RelayCommand(() => IsFullScreen = false);
+        OpenDashboardCommand    = new RelayCommand(OpenDashboard);
     }
 
     // ------------------------------------------------------------------
